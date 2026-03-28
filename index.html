@@ -162,7 +162,7 @@ html:'<div class="slide-header"><div class="slide-tag">Safety</div><div class="s
 nar:"Great work making it through all eight chapters. You now understand what a BMS is, how it protects batteries, how to recognize normal BMS behavior versus genuine faults, how to identify end-of-life indicators, and when to escalate safety concerns. Now let us check your understanding with a quick five-question quiz. Take your time and read each question carefully before selecting your answer.",
 html:'<div class="slide-header"><div class="slide-tag">Quiz</div><div class="slide-title">Knowledge Check</div></div><div id="qc"></div>'}
 ];
-
+ 
 var QUIZ=[
 {q:"A customer says the charger light turned green but the battery does not seem fully charged. What do you tell them?",opts:["The charger is broken","This is normal — the BMS detected full capacity and stopped charging automatically","The battery needs recalibration","Warranty the product immediately"],ans:1},
 {q:"A customer's product shut off suddenly even though the battery was not empty. What is the most likely cause?",opts:["The product is defective","The BMS over-discharge cut-off activated to protect cell integrity","The charger is incompatible","The customer used the wrong cable"],ans:1},
@@ -170,9 +170,9 @@ var QUIZ=[
 {q:"Which situation requires IMMEDIATE escalation?",opts:["Battery takes slightly longer to charge","Battery feels warm during charging","Battery overheats AND fire is reported","Battery doesn't hold charge as long as before"],ans:2},
 {q:"A customer asks if it is okay to leave their product plugged in overnight. What is correct?",opts:["Yes, modern batteries are designed for overnight charging","It depends on the product","Not recommended — refer the customer to their user manual for recommended charge time","Only if using the original charger"],ans:2}
 ];
-
+ 
 var cur=0,playing=false,ccOn=false,spd=1,utt=null,qa={},qDone=false;
-
+ 
 function renderSidebar(){
   var h='';
   for(var i=0;i<CHS.length;i++){
@@ -181,7 +181,7 @@ function renderSidebar(){
   }
   document.getElementById('clist').innerHTML=h;
 }
-
+ 
 function renderSlide(){
   var ch=CHS[cur];
   document.getElementById('sarea').innerHTML=ch.html;
@@ -194,7 +194,7 @@ function renderSlide(){
   document.getElementById('sarea').scrollTop=0;
   renderSidebar();
 }
-
+ 
 function renderQuiz(){
   var qc=document.getElementById('qc');
   if(!qc)return;
@@ -209,7 +209,7 @@ function renderQuiz(){
   h+='<button class="quiz-submit" id="qsub" onclick="submitQ()" disabled>Submit Answers</button><div id="qres"></div>';
   qc.innerHTML=h;
 }
-
+ 
 function selOpt(qi,oi){
   if(qDone)return;
   qa[qi]=oi;
@@ -219,7 +219,7 @@ function selOpt(qi,oi){
   var sub=document.getElementById('qsub');
   if(sub) sub.disabled=Object.keys(qa).length<QUIZ.length;
 }
-
+ 
 function submitQ(){
   qDone=true;
   var correct=0;
@@ -238,11 +238,11 @@ function submitQ(){
   var pass=correct>=4;
   document.getElementById('qres').innerHTML='<div class="quiz-result '+(pass?'pass':'fail')+'">'+(pass?'&#127942;':'&#128203;')+' You scored '+correct+'/'+QUIZ.length+' ('+pct+'%) &mdash; '+(pass?'Pass! Strong understanding.':'Review recommended &mdash; revisit missed sections.')+'</div>';
 }
-
+ 
 function goCh(i){stopSpeech();cur=i;renderSlide();}
 function prevCh(){if(cur>0)goCh(cur-1);}
 function nextCh(){if(cur<CHS.length-1)goCh(cur+1);}
-
+ 
 function stopSpeech(){
   if(window.speechSynthesis)window.speechSynthesis.cancel();
   playing=false;
@@ -250,7 +250,7 @@ function stopSpeech(){
   document.getElementById('pcap').textContent='';
   if(ccOn)document.getElementById('captions').textContent='';
 }
-
+ 
 function togglePlay(){
   if(!window.speechSynthesis){alert('Your browser does not support text-to-speech. Please use Chrome or Edge.');return;}
   if(playing){
@@ -267,7 +267,7 @@ function togglePlay(){
     }
   }
 }
-
+ 
 function startNar(){
   window.speechSynthesis.cancel();
   var ch=CHS[cur];
@@ -296,19 +296,19 @@ function startNar(){
   document.getElementById('playbtn').innerHTML='&#9646;&#9646;';
   window.speechSynthesis.speak(utt);
 }
-
+ 
 function setSpd(v){
   spd=parseFloat(v);
   if(playing){stopSpeech();startNar();}
 }
-
+ 
 function toggleCC(){
   ccOn=!ccOn;
   document.getElementById('ccbtn').classList.toggle('on',ccOn);
   document.getElementById('captions').classList.toggle('show',ccOn);
   if(!ccOn)document.getElementById('captions').textContent='';
 }
-
+ 
 renderSlide();
 </script>
 </body>
