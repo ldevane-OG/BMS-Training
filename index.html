@@ -1,4 +1,4 @@
-index.html
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -1318,24 +1318,25 @@ function showScreen(name) {
   window.scrollTo(0,0);
 }
 
+document.addEventListener('DOMContentLoaded', function() {
+  document.getElementById('agent-name').addEventListener('input', checkStartReady);
+  document.getElementById('btn-start').addEventListener('click', () => {
+    agentName = document.getElementById('agent-name').value.trim();
+    document.getElementById('nav-agent-name').textContent = agentName;
+    document.getElementById('quiz-agent-name').textContent = agentName;
+    currentSlide = 1;
+    updateTrainingProgress();
+    showScreen('training');
+  });
+});
+
 // ═══════════════════════════════════════════════
 // LANDING
 // ═══════════════════════════════════════════════
-document.getElementById('agent-name').addEventListener('input', checkStartReady);
-
 function checkStartReady() {
   const n = document.getElementById('agent-name').value.trim();
   document.getElementById('btn-start').disabled = !n;
 }
-
-document.getElementById('btn-start').addEventListener('click', () => {
-  agentName = document.getElementById('agent-name').value.trim();
-  document.getElementById('nav-agent-name').textContent = agentName;
-  document.getElementById('quiz-agent-name').textContent = agentName;
-  currentSlide = 1;
-  updateTrainingProgress();
-  showScreen('training');
-});
 
 // ═══════════════════════════════════════════════
 // TRAINING SLIDES
