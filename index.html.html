@@ -1,0 +1,1585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BMS Training Academy — Jetson & Shop Joe</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* ASP Brand Colors */
+    --asp-blue: #1946BA;       /* Snow Joe / All Season Power Blue */
+    --asp-green: #C3CF21;      /* Sun Joe Green */
+    --asp-orange: #FF6600;     /* ASP Orange - CTAs */
+    --asp-charcoal: #333333;   /* Charcoal - replaces black in digital */
+    --asp-aqua: #00B2CE;       /* Aqua Joe Blue */
+
+    /* UI mapping */
+    --bg: #f4f6fb;
+    --surface: #ffffff;
+    --surface2: #edf0f8;
+    --border: #d0d8ec;
+    --accent: var(--asp-blue);
+    --accent2: var(--asp-orange);
+    --accent3: var(--asp-green);
+    --green: #2a9d4e;
+    --red: #d32f2f;
+    --yellow: #e6a817;
+    --text: var(--asp-charcoal);
+    --muted: #6b7280;
+    --card: #ffffff;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Open Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── GRID BACKGROUND ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(25,70,186,0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(25,70,186,0.05) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── SCREENS ── */
+  .screen { display: none; position: relative; z-index: 1; }
+  .screen.active { display: block; }
+
+  /* ══════════════════════════════════
+     SCREEN 0 — LANDING
+  ══════════════════════════════════ */
+  #screen-landing {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    text-align: center;
+  }
+  #screen-landing.active { display: flex; }
+
+  .brand-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(25,70,186,0.08);
+    border: 1px solid rgba(25,70,186,0.25);
+    border-radius: 50px;
+    padding: 6px 16px;
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--asp-blue);
+    margin-bottom: 32px;
+    animation: fadeDown 0.6s ease both;
+  }
+
+  .hero-title {
+    font-family: 'Open Sans', sans-serif;
+    font-size: clamp(42px, 8vw, 88px);
+    font-weight: 800;
+    line-height: 0.95;
+    letter-spacing: -2px;
+    margin-bottom: 12px;
+    color: var(--asp-charcoal);
+    animation: fadeDown 0.6s 0.1s ease both;
+  }
+
+  .hero-title span { color: var(--asp-blue); }
+  .hero-title .line2 { color: var(--muted); font-weight: 400; font-size: 0.5em; letter-spacing: 0px; display: block; margin-top: 8px; }
+
+  .hero-sub {
+    font-size: 17px;
+    color: var(--muted);
+    max-width: 480px;
+    line-height: 1.6;
+    margin-bottom: 40px;
+    animation: fadeDown 0.6s 0.2s ease both;
+  }
+
+  .meta-pills {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 48px;
+    animation: fadeDown 0.6s 0.3s ease both;
+  }
+
+  .pill {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 13px;
+    color: var(--muted);
+    box-shadow: 0 1px 4px rgba(25,70,186,0.07);
+  }
+  .pill span { color: var(--asp-blue); font-weight: 600; }
+
+  .start-form {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 40px;
+    width: 100%;
+    max-width: 440px;
+    animation: fadeUp 0.6s 0.4s ease both;
+    box-shadow: 0 4px 24px rgba(25,70,186,0.10);
+  }
+
+  .start-form h3 {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    color: var(--asp-charcoal);
+  }
+  .start-form p { font-size: 14px; color: var(--muted); margin-bottom: 28px; }
+
+  .input-group { margin-bottom: 16px; }
+  .input-group label { display: block; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 8px; }
+
+  .input-group input {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    color: var(--text);
+    font-family: 'Open Sans', sans-serif;
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .input-group input:focus { border-color: var(--asp-blue); }
+  .input-group input::placeholder { color: var(--muted); }
+
+  .btn-primary {
+    width: 100%;
+    background: var(--asp-orange);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 16px;
+    font-family: 'Open Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 8px;
+    letter-spacing: 0.5px;
+  }
+  .btn-primary:hover { background: #e05500; transform: translateY(-1px); }
+  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+  .mgmt-link {
+    margin-top: 20px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .mgmt-link a { color: var(--asp-blue); text-decoration: none; cursor: pointer; }
+  .mgmt-link a:hover { text-decoration: underline; }
+
+  /* ══════════════════════════════════
+     SCREEN 1 — TRAINING CONTENT
+  ══════════════════════════════════ */
+  #screen-training {
+    min-height: 100vh;
+    padding: 0;
+  }
+  #screen-training.active { display: block; }
+
+  .training-nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--asp-blue);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255,255,255,0.15);
+    padding: 16px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .training-nav .logo {
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 800;
+    font-size: 16px;
+    color: white;
+  }
+
+  .progress-wrap {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    max-width: 400px;
+    margin: 0 24px;
+  }
+  .progress-bar {
+    flex: 1;
+    height: 4px;
+    background: rgba(255,255,255,0.25);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--asp-green);
+    border-radius: 2px;
+    transition: width 0.5s ease;
+    width: 0%;
+  }
+  .progress-label { font-size: 13px; color: rgba(255,255,255,0.8); white-space: nowrap; }
+
+  .agent-tag {
+    font-size: 13px;
+    color: rgba(255,255,255,0.9);
+    background: rgba(255,255,255,0.15);
+    padding: 4px 12px;
+    border-radius: 6px;
+  }
+
+  .slides-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 48px 24px 80px;
+  }
+
+  .slide {
+    display: none;
+    animation: fadeUp 0.4s ease;
+  }
+  .slide.active { display: block; }
+
+  .slide-number {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--asp-blue);
+    margin-bottom: 12px;
+    font-weight: 600;
+  }
+
+  .slide h2 {
+    font-family: 'Open Sans', sans-serif;
+    font-size: clamp(26px, 4vw, 42px);
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 24px;
+    letter-spacing: -0.5px;
+    color: var(--asp-charcoal);
+  }
+
+  .slide-body { font-size: 16px; line-height: 1.7; color: var(--asp-charcoal); }
+  .slide-body p { margin-bottom: 16px; }
+  .slide-body strong { color: var(--asp-blue); }
+
+  /* Info cards */
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin: 24px 0;
+  }
+  .info-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(25,70,186,0.07);
+  }
+  .info-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--asp-blue), var(--asp-green));
+  }
+  .info-card .card-icon { font-size: 28px; margin-bottom: 10px; }
+  .info-card h4 { font-family: 'Open Sans', sans-serif; font-size: 14px; font-weight: 700; margin-bottom: 6px; color: var(--asp-charcoal); }
+  .info-card p { font-size: 13px; color: var(--muted); line-height: 1.5; }
+
+  /* Symptom table */
+  .symptom-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 24px 0;
+    font-size: 14px;
+  }
+  .symptom-table th {
+    background: var(--asp-blue);
+    padding: 12px 16px;
+    text-align: left;
+    font-family: 'Open Sans', sans-serif;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: white;
+    border-bottom: 1px solid var(--border);
+  }
+  .symptom-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+    line-height: 1.5;
+    background: white;
+    color: var(--asp-charcoal);
+  }
+  .symptom-table tr:hover td { background: #f0f4ff; }
+  .symptom-table .cs { color: #b86e00; font-style: italic; font-weight: 600; }
+  .symptom-table .cause { color: var(--asp-charcoal); }
+  .symptom-table .check { color: var(--green); font-size: 13px; }
+
+  /* Alert box */
+  .alert-box {
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin: 20px 0;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+  .alert-box.warning { background: rgba(230,168,23,0.08); border: 1px solid rgba(230,168,23,0.3); }
+  .alert-box.danger { background: rgba(211,47,47,0.07); border: 1px solid rgba(211,47,47,0.25); }
+  .alert-box.info { background: rgba(25,70,186,0.06); border: 1px solid rgba(25,70,186,0.2); }
+  .alert-icon { font-size: 22px; flex-shrink: 0; }
+  .alert-content h4 { font-family: 'Open Sans', sans-serif; font-size: 14px; font-weight: 700; margin-bottom: 4px; color: var(--asp-charcoal); }
+  .alert-content p { font-size: 14px; color: var(--muted); line-height: 1.5; }
+  .alert-content ul { margin: 8px 0 0 0; padding-left: 18px; }
+  .alert-content ul li { font-size: 14px; color: var(--muted); margin-bottom: 4px; }
+
+  /* Number list */
+  .step-list { list-style: none; margin: 16px 0; }
+  .step-list li {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 16px;
+    align-items: flex-start;
+  }
+  .step-num {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--asp-blue);
+    color: white;
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 800;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .step-list li p { font-size: 15px; color: var(--asp-charcoal); padding-top: 4px; }
+  .step-list li strong { color: var(--asp-blue); display: block; margin-bottom: 2px; }
+
+  /* Stat callout */
+  .stat-callout {
+    text-align: center;
+    background: var(--asp-blue);
+    border: none;
+    border-radius: 16px;
+    padding: 32px;
+    margin: 24px 0;
+  }
+  .stat-callout .stat-num {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 72px;
+    font-weight: 800;
+    color: var(--asp-green);
+    line-height: 1;
+  }
+  .stat-callout .stat-label { font-size: 16px; color: rgba(255,255,255,0.85); margin-top: 8px; }
+
+  /* Nav buttons */
+  .slide-nav {
+    display: flex;
+    gap: 12px;
+    margin-top: 48px;
+    justify-content: space-between;
+  }
+  .btn-nav {
+    background: white;
+    border: 1px solid var(--border);
+    color: var(--asp-charcoal);
+    padding: 12px 28px;
+    border-radius: 10px;
+    font-family: 'Open Sans', sans-serif;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-nav:hover { border-color: var(--asp-blue); color: var(--asp-blue); }
+  .btn-nav.next {
+    background: var(--asp-blue);
+    color: white;
+    border-color: var(--asp-blue);
+    font-weight: 600;
+  }
+  .btn-nav.next:hover { background: #143da0; }
+
+  /* OBJECTIVES LIST */
+  .obj-list { list-style: none; margin: 24px 0; }
+  .obj-list li {
+    display: flex;
+    gap: 12px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 15px;
+    color: var(--asp-charcoal);
+  }
+  .obj-list li:last-child { border-bottom: none; }
+  .obj-check { color: var(--asp-blue); font-size: 18px; }
+
+  /* ══════════════════════════════════
+     SCREEN 2 — QUIZ
+  ══════════════════════════════════ */
+  #screen-quiz { min-height: 100vh; padding: 0; background: var(--bg); }
+  #screen-quiz.active { display: block; }
+
+  .quiz-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--asp-charcoal);
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    padding: 16px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .quiz-header .logo { font-family: 'Open Sans', sans-serif; font-weight: 800; font-size: 16px; color: var(--asp-orange); }
+  .quiz-counter { font-size: 13px; color: rgba(255,255,255,0.6); }
+
+  .quiz-body {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 48px 24px 80px;
+  }
+
+  .quiz-section-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--asp-blue);
+    margin-bottom: 32px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+  }
+  .quiz-section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  .question-block { margin-bottom: 40px; }
+  .question-block .q-num { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+  .question-block .q-text {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1.4;
+    margin-bottom: 16px;
+    color: var(--asp-charcoal);
+  }
+
+  .options { display: flex; flex-direction: column; gap: 10px; }
+
+  .option-label {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 18px;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 14px;
+    line-height: 1.5;
+    user-select: none;
+    color: var(--asp-charcoal);
+  }
+  .option-label:hover:not(.locked) { border-color: var(--asp-blue); background: rgba(25,70,186,0.04); }
+  .option-label input[type="radio"] { display: none; }
+  .option-marker {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    font-family: 'Syne', sans-serif;
+    transition: all 0.2s;
+  }
+  .option-label.selected .option-marker { border-color: var(--accent); background: var(--accent); color: #0a0e1a; }
+  .option-label.locked { cursor: default; }
+
+  .quiz-submit-section { margin-top: 40px; padding-top: 32px; border-top: 1px solid var(--border); }
+  .quiz-submit-section p { font-size: 14px; color: var(--muted); margin-bottom: 16px; }
+
+  .btn-submit {
+    background: var(--asp-orange);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 18px 40px;
+    font-family: 'Open Sans', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+  }
+  .btn-submit:hover { background: #e05500; transform: translateY(-1px); }
+  .btn-submit:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+  /* ══════════════════════════════════
+     SCREEN 3 — RESULTS
+  ══════════════════════════════════ */
+  #screen-results {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 24px;
+    text-align: center;
+    background: var(--bg);
+  }
+  #screen-results.active { display: flex; }
+
+  .result-badge {
+    font-size: 80px;
+    margin-bottom: 20px;
+    animation: bounce 0.5s ease;
+  }
+  .result-title {
+    font-family: 'Open Sans', sans-serif;
+    font-size: clamp(32px, 5vw, 52px);
+    font-weight: 800;
+    margin-bottom: 8px;
+    letter-spacing: -1px;
+    color: var(--asp-charcoal);
+  }
+  .result-score {
+    font-size: 72px;
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 800;
+    line-height: 1;
+    margin: 16px 0;
+  }
+  .result-score.pass { color: var(--green); }
+  .result-score.review { color: var(--yellow); }
+  .result-score.fail { color: var(--red); }
+
+  .result-status {
+    display: inline-block;
+    padding: 8px 24px;
+    border-radius: 50px;
+    font-size: 14px;
+    font-weight: 700;
+    margin: 8px 0 24px;
+    font-family: 'Open Sans', sans-serif;
+  }
+  .result-status.pass { background: rgba(42,157,78,0.12); color: var(--green); border: 1px solid rgba(42,157,78,0.3); }
+  .result-status.review { background: rgba(230,168,23,0.12); color: #b86e00; border: 1px solid rgba(230,168,23,0.3); }
+  .result-status.fail { background: rgba(211,47,47,0.10); color: var(--red); border: 1px solid rgba(211,47,47,0.3); }
+
+  .result-breakdown {
+    max-width: 600px;
+    width: 100%;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 32px;
+    margin: 24px 0;
+    text-align: left;
+    box-shadow: 0 4px 16px rgba(25,70,186,0.08);
+  }
+  .result-breakdown h3 {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 12px;
+    margin-bottom: 20px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-weight: 700;
+  }
+  .answer-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 14px;
+  }
+  .answer-row:last-child { border-bottom: none; }
+  .answer-row .q-label { color: var(--asp-charcoal); }
+  .answer-row .ans-indicator { display: flex; align-items: center; gap: 6px; }
+  .tick { color: var(--green); font-size: 16px; }
+  .cross { color: var(--red); font-size: 16px; }
+  .correct-ans { font-size: 12px; color: var(--muted); }
+
+  .result-meta { font-size: 13px; color: var(--muted); margin-top: 8px; }
+
+  /* ══════════════════════════════════
+     SCREEN 4 — MGMT DASHBOARD
+  ══════════════════════════════════ */
+  #screen-mgmt { min-height: 100vh; padding: 48px 24px; background: var(--bg); }
+  #screen-mgmt.active { display: block; }
+
+  .mgmt-header {
+    max-width: 900px;
+    margin: 0 auto 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+  .mgmt-header h1 {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    color: var(--asp-charcoal);
+  }
+  .mgmt-header p { font-size: 14px; color: var(--muted); margin-top: 4px; }
+  .btn-back { background: white; border: 1px solid var(--border); color: var(--muted); padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 13px; transition: all 0.2s; }
+  .btn-back:hover { border-color: var(--asp-blue); color: var(--asp-blue); }
+
+  .mgmt-pin-gate {
+    max-width: 360px;
+    margin: 80px auto;
+    text-align: center;
+  }
+  .mgmt-pin-gate h2 { font-family: 'Open Sans', sans-serif; font-size: 24px; margin-bottom: 8px; color: var(--asp-charcoal); }
+  .mgmt-pin-gate p { color: var(--muted); font-size: 14px; margin-bottom: 24px; }
+  .pin-input {
+    width: 100%;
+    background: white;
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    color: var(--asp-charcoal);
+    font-size: 20px;
+    text-align: center;
+    letter-spacing: 8px;
+    outline: none;
+    font-family: 'Open Sans', sans-serif;
+    margin-bottom: 12px;
+  }
+  .pin-input:focus { border-color: var(--asp-blue); }
+  .pin-error { color: var(--red); font-size: 13px; margin-top: 8px; }
+
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 16px;
+    max-width: 900px;
+    margin: 0 auto 32px;
+  }
+  .stat-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+  }
+  .stat-card .s-num {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 36px;
+    font-weight: 800;
+    line-height: 1;
+  }
+  .stat-card .s-label { font-size: 13px; color: var(--muted); margin-top: 4px; }
+  .stat-card.pass-stat .s-num { color: var(--green); }
+  .stat-card.review-stat .s-num { color: #b86e00; }
+  .stat-card.fail-stat .s-num { color: var(--red); }
+
+  .submissions-table {
+    max-width: 900px;
+    margin: 0 auto;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(25,70,186,0.08);
+  }
+  .submissions-table table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .submissions-table th {
+    background: var(--asp-blue);
+    padding: 14px 20px;
+    text-align: left;
+    font-family: 'Open Sans', sans-serif;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: white;
+  }
+  .submissions-table td {
+    padding: 14px 20px;
+    border-top: 1px solid var(--border);
+    color: var(--asp-charcoal);
+  }
+  .submissions-table tr:hover td { background: #f0f4ff; }
+  .badge-pass { background: rgba(42,157,78,0.12); color: var(--green); padding: 3px 10px; border-radius: 50px; font-size: 12px; font-weight: 700; }
+  .badge-review { background: rgba(230,168,23,0.12); color: #b86e00; padding: 3px 10px; border-radius: 50px; font-size: 12px; font-weight: 700; }
+  .badge-fail { background: rgba(211,47,47,0.10); color: var(--red); padding: 3px 10px; border-radius: 50px; font-size: 12px; font-weight: 700; }
+
+  .empty-state { text-align: center; padding: 60px; color: var(--muted); }
+  .empty-state .icon { font-size: 48px; margin-bottom: 12px; }
+
+  .btn-export {
+    background: white;
+    border: 1px solid var(--border);
+    color: var(--asp-charcoal);
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.2s;
+    margin-left: 8px;
+  }
+  .btn-export:hover { border-color: var(--asp-blue); color: var(--asp-blue); }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes bounce { 0%,100% { transform: scale(1); } 50% { transform: scale(1.2); } }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 600px) {
+    .training-nav, .quiz-header { padding: 12px 16px; }
+    .slides-container, .quiz-body { padding: 24px 16px 60px; }
+    .symptom-table th, .symptom-table td { padding: 10px 10px; font-size: 13px; }
+    .mgmt-header { flex-direction: column; gap: 12px; align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════
+     SCREEN 0 — LANDING
+════════════════════════════════ -->
+<div id="screen-landing" class="screen active">
+  <div class="brand-badge">🔋 TruVolt Brands · CX Training</div>
+  <h1 class="hero-title">
+    <span>BMS</span> Academy
+    <span class="line2">Battery Management Systems</span>
+  </h1>
+  <p class="hero-sub">Your complete training on Battery Management Systems — how they work, how to troubleshoot, and when to escalate.</p>
+  <div class="meta-pills">
+    <div class="pill">Duration: <span>~45 min</span></div>
+    <div class="pill">Applies to: <span>Jetson & Shop Joe</span></div>
+    <div class="pill">Sections: <span>6 topics + quiz</span></div>
+    <div class="pill">Quiz: <span>16 questions</span></div>
+  </div>
+
+  <div class="start-form">
+    <h3>Ready to begin?</h3>
+    <p>Enter your name to get started. Your quiz score will be saved automatically.</p>
+    <div class="input-group">
+      <label>Your Name</label>
+      <input type="text" id="agent-name" placeholder="e.g. Jordan Reyes" autocomplete="off">
+    </div>
+    <button class="btn-primary" id="btn-start" disabled>Start Training →</button>
+  </div>
+
+  <div class="mgmt-link">Management? <a onclick="showScreen('mgmt')">View Score Dashboard</a></div>
+</div>
+
+<!-- ════════════════════════════════
+     SCREEN 1 — TRAINING SLIDES
+════════════════════════════════ -->
+<div id="screen-training" class="screen">
+  <nav class="training-nav">
+    <div class="logo">⚡ BMS Academy</div>
+    <div class="progress-wrap">
+      <div class="progress-bar"><div class="progress-fill" id="train-progress"></div></div>
+      <div class="progress-label" id="train-prog-label">Slide 1 of 8</div>
+    </div>
+    <div class="agent-tag" id="nav-agent-name"></div>
+  </nav>
+
+  <div class="slides-container">
+
+    <!-- Slide 1: Intro -->
+    <div class="slide active" data-slide="1">
+      <div class="slide-number">Introduction — Slide 1 of 8</div>
+      <h2>What is a Battery Management System?</h2>
+      <div class="slide-body">
+        <p>A <strong>Battery Management System (BMS)</strong> is an electronic system built into rechargeable battery packs. Its job is to monitor and control the battery to ensure it operates safely at all times.</p>
+        <div class="info-grid">
+          <div class="info-card">
+            <div class="card-icon">🔍</div>
+            <h4>Monitors</h4>
+            <p>Tracks voltage, temperature, and current in real time</p>
+          </div>
+          <div class="info-card">
+            <div class="card-icon">🛡️</div>
+            <h4>Protects</h4>
+            <p>Prevents overcharge, over-discharge, and short circuits</p>
+          </div>
+          <div class="info-card">
+            <div class="card-icon">⚡</div>
+            <h4>Optimizes</h4>
+            <p>Balances cells to maximize performance and lifespan</p>
+          </div>
+          <div class="info-card">
+            <div class="card-icon">🤖</div>
+            <h4>Automates</h4>
+            <p>Stops charging, shuts off device — all automatically</p>
+          </div>
+        </div>
+        <div class="alert-box info">
+          <div class="alert-icon">💡</div>
+          <div class="alert-content">
+            <h4>Think of it this way</h4>
+            <p>The BMS is the "safety manager" of the battery. Without it, lithium batteries could overheat, overcharge, or become unstable.</p>
+          </div>
+        </div>
+      </div>
+      <div class="slide-nav">
+        <div></div>
+        <button class="btn-nav next" onclick="nextSlide()">Next: BMS in Our Products →</button>
+      </div>
+    </div>
+
+    <!-- Slide 2: Products -->
+    <div class="slide" data-slide="2">
+      <div class="slide-number">Our Products — Slide 2 of 8</div>
+      <h2>BMS in Jetson & Shop Joe</h2>
+      <div class="slide-body">
+        <p>Both <strong>Jetson</strong> and <strong>Shop Joe</strong> product lines use lithium battery packs with an integrated BMS. That means every time a customer charges or uses a product, the BMS is monitoring it in the background.</p>
+        <div class="info-grid">
+          <div class="info-card">
+            <div class="card-icon">🚲</div>
+            <h4>Jetson Products</h4>
+            <p>E-bikes, e-scooters, hoverboards — all use BMS-integrated lithium packs</p>
+          </div>
+          <div class="info-card">
+            <div class="card-icon">🔧</div>
+            <h4>Shop Joe Products</h4>
+            <p>Power tools and equipment with rechargeable lithium battery packs</p>
+          </div>
+        </div>
+        <div class="alert-box warning">
+          <div class="alert-icon">⚠️</div>
+          <div class="alert-content">
+            <h4>Key agent insight</h4>
+            <p>Some behaviors customers <em>think</em> are defects are actually the BMS working correctly — auto charge-stop, sudden shutdown at low battery, and charge slowdown near full capacity are all <strong>normal BMS behaviors</strong>.</p>
+          </div>
+        </div>
+      </div>
+      <div class="slide-nav">
+        <button class="btn-nav" onclick="prevSlide()">← Back</button>
+        <button class="btn-nav next" onclick="nextSlide()">Next: Key Functions →</button>
+      </div>
+    </div>
+
+    <!-- Slide 3: Key Functions -->
+    <div class="slide" data-slide="3">
+      <div class="slide-number">Key Functions — Slide 3 of 8</div>
+      <h2>5 Core BMS Functions</h2>
+      <div class="slide-body">
+        <ul class="step-list">
+          <li><div class="step-num">1</div><p><strong>Cell Monitoring</strong> — Checks each cell's voltage continuously to keep all cells within safe operating ranges.</p></li>
+          <li><div class="step-num">2</div><p><strong>Temperature Monitoring</strong> — Stops charging or discharge if the battery gets too hot or too cold. This is why products may not charge in extreme temperatures.</p></li>
+          <li><div class="step-num">3</div><p><strong>Overcharge Protection</strong> — Once the battery reaches 100%, the BMS stops charging automatically. Charger light turning green = BMS has stopped — not a defect.</p></li>
+          <li><div class="step-num">4</div><p><strong>Over-Discharge Protection</strong> — If battery voltage drops dangerously low, the BMS shuts off the product to prevent permanent cell damage.</p></li>
+          <li><div class="step-num">5</div><p><strong>Short Circuit Protection</strong> — Immediately cuts all power if an electrical fault is detected.</p></li>
+        </ul>
+      </div>
+      <div class="slide-nav">
+        <button class="btn-nav" onclick="prevSlide()">← Back</button>
+        <button class="btn-nav next" onclick="nextSlide()">Next: Charge Cycles →</button>
+      </div>
+    </div>
+
+    <!-- Slide 4: Charge Cycles -->
+    <div class="slide" data-slide="4">
+      <div class="slide-number">Charge Cycles — Slide 4 of 8</div>
+      <h2>What is a Charge Cycle?</h2>
+      <div class="slide-body">
+        <p>A <strong>charge cycle</strong> = one complete use of the battery's total capacity — from full to empty and back to full.</p>
+        <div class="alert-box info">
+          <div class="alert-icon">📊</div>
+          <div class="alert-content">
+            <h4>Partial uses count too</h4>
+            <p>Using 50% battery one day + 50% the next day = <strong>1 full charge cycle</strong>. This applies to both Jetson and Shop Joe products.</p>
+          </div>
+        </div>
+        <div class="stat-callout">
+          <div class="stat-num">300–500</div>
+          <div class="stat-label">Approximate charge cycles for most lithium batteries</div>
+        </div>
+        <p>Actual lifespan depends on usage habits, charging behavior, and environmental conditions. This is why proper charging practices matter for battery longevity.</p>
+      </div>
+      <div class="slide-nav">
+        <button class="btn-nav" onclick="prevSlide()">← Back</button>
+        <button class="btn-nav next" onclick="nextSlide()">Next: Charging FAQs →</button>
+      </div>
+    </div>
+
+    <!-- Slide 5: Charging FAQs -->
+    <div class="slide" data-slide="5">
+      <div class="slide-number">Charging FAQs — Slide 5 of 8</div>
+      <h2>Charging Best Practices</h2>
+      <div class="slide-body">
+        <ul class="step-list">
+          <li>
+            <div class="step-num">Q</div>
+            <p>
+              <strong>Can I charge overnight?</strong><br>
+              <span style="color:var(--accent2)">Not recommended.</span> Leaving the product plugged in overnight can diminish battery life over time. Always refer customers to their user manual for the recommended charge time and method.
+            </p>
+          </li>
+          <li>
+            <div class="step-num">Q</div>
+            <p>
+              <strong>How long should charging take?</strong><br>
+              Charging time <strong>varies by product</strong>. Never quote a universal time. Always direct customers to their user manual.
+            </p>
+          </li>
+          <li>
+            <div class="step-num">Q</div>
+            <p>
+              <strong>Should I drain the battery fully before charging?</strong><br>
+              No. Lithium batteries actually perform better with <strong>partial charging cycles</strong>. Full depletion repeatedly can stress cells.
+            </p>
+          </li>
+        </ul>
+        <div class="alert-box warning">
+          <div class="alert-icon">📋</div>
+          <div class="alert-content">
+            <h4>Agent Reminder</h4>
+            <p>Always guide customers back to <strong>manufacturer recommendations</strong> in the user manual. Don't speculate on specific charge times.</p>
+          </div>
+        </div>
+      </div>
+      <div class="slide-nav">
+        <button class="btn-nav" onclick="prevSlide()">← Back</button>
+        <button class="btn-nav next" onclick="nextSlide()">Next: BMS Symptoms →</button>
+      </div>
+    </div>
+
+    <!-- Slide 6: Symptoms -->
+    <div class="slide" data-slide="6">
+      <div class="slide-number">BMS Symptoms — Slide 6 of 8</div>
+      <h2>Common BMS-Related Symptoms</h2>
+      <div class="slide-body">
+        <p>When customers describe these issues, recognize the underlying BMS behavior:</p>
+        <table class="symptom-table">
+          <thead>
+            <tr><th>Customer Says</th><th>BMS Cause</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="cs">"Why won't my battery charge?"</td>
+              <td class="cause">BMS lockout / over-discharge protection — battery too depleted, or charge protection triggered</td>
+            </tr>
+            <tr>
+              <td class="cs">"Why did my product shut off suddenly?"</td>
+              <td class="cause">BMS over-discharge cut-off — battery hit critically low voltage; BMS cut power to protect cells</td>
+            </tr>
+            <tr>
+              <td class="cs">"Charger light is green but battery isn't full"</td>
+              <td class="cause">BMS charge termination — BMS detected full capacity and stopped. <strong>This is normal, not a defect.</strong></td>
+            </tr>
+            <tr>
+              <td class="cs">"Is it safe to leave it plugged in?"</td>
+              <td class="cause">No. Do not leave plugged in beyond the recommended charge time listed in the product manual</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="slide-nav">
+        <button class="btn-nav" onclick="prevSlide()">← Back</button>
+        <button class="btn-nav next" onclick="nextSlide()">Next: End-of-Life →</button>
+      </div>
+    </div>
+
+    <!-- Slide 7: EOL + Escalation -->
+    <div class="slide" data-slide="7">
+      <div class="slide-number">End-of-Life & Escalation — Slide 7 of 8</div>
+      <h2>Recognizing Battery EOL</h2>
+      <div class="slide-body">
+        <table class="symptom-table">
+          <thead>
+            <tr><th>Symptom</th><th>Cause</th><th>Agent Check</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="cs">"Used to last an hour, now 10 min"</td>
+              <td class="cause">Cell degradation after many cycles</td>
+              <td class="check">Ask purchase date & usage. Gradual = EOL. Sudden = possible BMS fault.</td>
+            </tr>
+            <tr>
+              <td class="cs">"Battery won't hold charge"</td>
+              <td class="cause">EOL capacity loss or BMS triggered</td>
+              <td class="check">Confirm OEM charger. Charge indicator works but drains = likely EOL</td>
+            </tr>
+            <tr>
+              <td class="cs">"Shows full, shuts off in minutes"</td>
+              <td class="cause">Voltage drop under load — classic EOL</td>
+              <td class="check">Gradual or sudden? Strong EOL sign. Escalate if under warranty.</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="alert-box danger">
+          <div class="alert-icon">🚨</div>
+          <div class="alert-content">
+            <h4>Escalate Immediately When:</h4>
+            <ul>
+              <li>Battery overheats (too hot to touch — not normal warmth)</li>
+              <li>Fire is reported</li>
+              <li>Battery swelling or visible damage</li>
+            </ul>
+          </div>
+        </div>
+        <div class="alert-box warning">
+          <div class="alert-icon">🌡️</div>
+          <div class="alert-content">
+            <h4>When customer says "battery feels hot" — ask first:</h4>
+            <ul>
+              <li>Is it warm, or too hot to touch?</li>
+              <li>During charging or during use?</li>
+              <li>Did the product shut off or show a warning?</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="slide-nav">
+        <button class="btn-nav" onclick="prevSlide()">← Back</button>
+        <button class="btn-nav next" onclick="nextSlide()">Next: Safety & Key Takeaways →</button>
+      </div>
+    </div>
+
+    <!-- Slide 8: Safety + CTA -->
+    <div class="slide" data-slide="8">
+      <div class="slide-number">Safety & Summary — Slide 8 of 8</div>
+      <h2>Safety Messaging & Key Takeaways</h2>
+      <div class="slide-body">
+        <div class="alert-box danger">
+          <div class="alert-icon">🔒</div>
+          <div class="alert-content">
+            <h4>Always Communicate to Customers</h4>
+            <ul>
+              <li>Never use damaged chargers</li>
+              <li>Avoid extreme heat or cold</li>
+              <li>Stop using immediately if battery swells</li>
+              <li>Follow manufacturer charging instructions (user manual)</li>
+            </ul>
+          </div>
+        </div>
+        <div class="info-grid">
+          <div class="info-card">
+            <div class="card-icon">✅</div>
+            <h4>BMS Protects</h4>
+            <p>The BMS protects both the battery and the user — many "issues" are intentional BMS behaviors</p>
+          </div>
+          <div class="info-card">
+            <div class="card-icon">🔄</div>
+            <h4>Cycles Matter</h4>
+            <p>300–500 charge cycles is the expected lithium lifespan. Partial uses count.</p>
+          </div>
+          <div class="info-card">
+            <div class="card-icon">🚨</div>
+            <h4>Know When to Escalate</h4>
+            <p>Overheating, fire, and swelling = immediate escalation. Warmth = ask first.</p>
+          </div>
+        </div>
+        <p style="margin-top:24px; color: var(--asp-blue); font-family:'Open Sans',sans-serif; font-size:18px; font-weight:700;">You're ready for the Knowledge Check! 🎯</p>
+      </div>
+      <div class="slide-nav">
+        <button class="btn-nav" onclick="prevSlide()">← Back</button>
+        <button class="btn-nav next" style="background: var(--asp-orange); border-color: var(--asp-orange);" onclick="startQuiz()">Start Knowledge Check →</button>
+      </div>
+    </div>
+
+  </div><!-- /slides-container -->
+</div><!-- /screen-training -->
+
+
+<!-- ════════════════════════════════
+     SCREEN 2 — QUIZ
+════════════════════════════════ -->
+<div id="screen-quiz" class="screen">
+  <div class="quiz-header">
+    <div class="logo">📝 Knowledge Check</div>
+    <div class="quiz-counter" id="quiz-counter">16 Questions · BMS Training</div>
+    <div class="agent-tag" id="quiz-agent-name"></div>
+  </div>
+  <div class="quiz-body" id="quiz-body">
+    <!-- Built by JS -->
+  </div>
+</div>
+
+<!-- ════════════════════════════════
+     SCREEN 3 — RESULTS
+════════════════════════════════ -->
+<div id="screen-results" class="screen">
+  <div id="result-badge" class="result-badge">🎉</div>
+  <h1 id="result-title" class="result-title">Training Complete</h1>
+  <div id="result-score" class="result-score pass">16/16</div>
+  <div id="result-status" class="result-status pass">✅ Pass — Strong Understanding</div>
+  <div class="result-meta" id="result-meta"></div>
+  <div class="result-breakdown" id="result-breakdown"></div>
+  <p style="font-size:13px; color:var(--muted); max-width:480px; text-align:center; margin-top:8px;">Your score has been recorded. A copy of your results is saved for your manager to review.</p>
+</div>
+
+<!-- ════════════════════════════════
+     SCREEN 4 — MGMT DASHBOARD
+════════════════════════════════ -->
+<div id="screen-mgmt" class="screen">
+  <div id="mgmt-pin-gate">
+    <div class="mgmt-pin-gate">
+      <div style="font-size:48px; margin-bottom:16px">🔐</div>
+      <h2>Manager Access</h2>
+      <p>Enter the management PIN to view agent quiz scores.</p>
+      <input type="password" class="pin-input" id="pin-input" placeholder="••••" maxlength="4" oninput="checkPin()">
+      <div class="pin-error" id="pin-error" style="display:none">Incorrect PIN. Try again.</div>
+      <div style="margin-top:16px; font-size:12px; color:var(--muted)">Default PIN: <strong style="color:var(--asp-blue)">2024</strong></div>
+    </div>
+  </div>
+
+  <div id="mgmt-dashboard" style="display:none">
+    <div class="mgmt-header">
+      <div>
+        <h1>📊 Score Dashboard</h1>
+        <p>BMS Contact Center Training — Jetson & Shop Joe</p>
+      </div>
+      <div>
+        <button class="btn-export" onclick="exportCSV()">⬇ Export CSV</button>
+        <button class="btn-back" onclick="showScreen('landing')">← Exit</button>
+      </div>
+    </div>
+
+    <div class="stats-row" id="stats-row"></div>
+
+    <div class="submissions-table">
+      <table>
+        <thead>
+          <tr>
+            <th>Agent Name</th>
+            <th>Score</th>
+            <th>%</th>
+            <th>Result</th>
+            <th>Date / Time</th>
+          </tr>
+        </thead>
+        <tbody id="scores-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+
+<script>
+// ═══════════════════════════════════════════════
+// QUIZ DATA
+// ═══════════════════════════════════════════════
+const QUIZ = [
+  {
+    section: "Section 1: What is a BMS?",
+    q: "What does BMS stand for?",
+    opts: ["Battery Monitoring Software","Battery Management System","Battery Measurement Sensor","Battery Maintenance Schedule"],
+    answer: 1
+  },
+  {
+    section: null,
+    q: "Which of the following is NOT a function of the BMS?",
+    opts: ["Monitors voltage, temperature, and current","Protects the battery from unsafe conditions","Increases the battery's voltage output","Optimizes battery performance and lifespan"],
+    answer: 2
+  },
+  {
+    section: "Section 2: BMS in Our Products",
+    q: "Which product lines use lithium battery packs with an integrated BMS?",
+    opts: ["Jetson only","Shop Joe only","Both Jetson and Shop Joe","Neither — BMS is external"],
+    answer: 2
+  },
+  {
+    section: null,
+    q: "A customer calls and says their product shut off suddenly even though the battery wasn't empty. What is the most likely cause?",
+    opts: ["The product is defective and needs replacement","The BMS over-discharge cut-off activated to protect cell integrity","The charger is incompatible","The customer used the wrong charging cable"],
+    answer: 1
+  },
+  {
+    section: null,
+    q: "A customer says the charger light turned green but the battery doesn't seem fully charged. What should you tell them?",
+    opts: ["The charger is broken and needs to be replaced","This is a defect and the battery should be warrantied immediately","This is normal — the BMS detected full capacity and stopped charging automatically","The battery needs to be recalibrated"],
+    answer: 2
+  },
+  {
+    section: "Section 3: Charge Cycles",
+    q: "What is a charge cycle?",
+    opts: ["The time it takes a battery to fully charge","One full charge and discharge of a battery","The number of times a battery can be recharged per day","The speed at which a battery drains"],
+    answer: 1
+  },
+  {
+    section: null,
+    q: "Do partial uses count toward the total number of charge cycles?",
+    opts: ["No — only full discharges count","Yes — partial uses count toward total cycles","Only if the battery drains below 50%","Only on Jetson products, not Shop Joe"],
+    answer: 1
+  },
+  {
+    section: null,
+    q: "Approximately how many charge cycles do most lithium batteries last?",
+    opts: ["100–200","500–1,000","300–500","50–100"],
+    answer: 2
+  },
+  {
+    section: "Section 4: Charging FAQs & Best Practices",
+    q: "A customer asks if it's okay to leave their product plugged in overnight. What is the correct response?",
+    opts: ["Yes, modern batteries are designed for overnight charging","It depends on the product","Not recommended — leaving the product plugged in overnight can diminish battery life over time. Refer the customer to their user manual","Only if using the original charger"],
+    answer: 2
+  },
+  {
+    section: null,
+    q: "A customer asks how long their product should take to charge. What should you tell them?",
+    opts: ["All products take 3–4 hours","Charging time varies by product — refer the customer to their user manual for the specific charging time","Approximately 1 hour for all Jetson products","Charge until the light turns green, regardless of time"],
+    answer: 1
+  },
+  {
+    section: "Section 5: Common BMS Symptoms & End-of-Life",
+    q: "A customer says their battery 'used to last an hour, but now dies in 10 minutes.' What is the most likely cause and what should you ask?",
+    opts: ["Defective BMS — escalate immediately","Cell degradation after many charge cycles. Ask about purchase date and usage frequency. Gradual runtime loss = EOL sign; sudden loss = possible BMS fault","The customer is using the wrong charger","Temperature exposure — recommend storing in a warmer environment"],
+    answer: 1
+  },
+  {
+    section: null,
+    q: "Which of the following is a classic End-of-Life (EOL) battery indicator?",
+    opts: ["Battery takes slightly longer to charge than usual","Product shows full charge but shuts off within minutes of use","Charger light blinks once before turning solid green","Battery feels slightly warm during charging"],
+    answer: 1
+  },
+  {
+    section: null,
+    q: "A customer says their battery charges but drains really fast. What are your first two steps?",
+    opts: ["Issue a warranty replacement immediately","Confirm OEM charger/cable is being used; if charge indicator works but device drains immediately, this likely indicates EOL","Ask them to reset the product and try again","Escalate to the safety team"],
+    answer: 1
+  },
+  {
+    section: "Section 6: Escalation & Safety",
+    q: "A customer says 'the battery feels hot.' What should you do BEFORE escalating?",
+    opts: ["Escalate immediately without asking any questions","Ask clarifying questions: Is it warm or too hot to touch? Did it happen during charging or use? Did the product shut off or display a warning?","Tell the customer it is normal and no action is needed","Ask the customer to send the product back immediately"],
+    answer: 1
+  },
+  {
+    section: null,
+    q: "Which TWO situations require immediate escalation?",
+    opts: ["Customer reports battery warmth during normal use","Battery overheats AND fire is reported","Battery doesn't hold a charge as long as it used to","Charger light turns green before the battery is full"],
+    answer: 1
+  },
+  {
+    section: "Section 6: Safety Messaging",
+    q: "Which of the following is correct safety guidance for battery use?",
+    opts: ["It is safe to use any charger as long as it fits the port","Slight swelling is normal and can be ignored","Never use damaged chargers, avoid extreme temperatures, stop using if swelling occurs, and follow manufacturer charging instructions","Charging in cold environments extends battery life"],
+    answer: 2
+  }
+];
+
+const LETTERS = ['A','B','C','D'];
+
+// ═══════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════
+let agentName = '';
+let currentSlide = 1;
+const TOTAL_SLIDES = 8;
+let answers = {};
+let submitted = false;
+
+// ═══════════════════════════════════════════════
+// SCREENS
+// ═══════════════════════════════════════════════
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+// ═══════════════════════════════════════════════
+// LANDING
+// ═══════════════════════════════════════════════
+document.getElementById('agent-name').addEventListener('input', checkStartReady);
+
+function checkStartReady() {
+  const n = document.getElementById('agent-name').value.trim();
+  document.getElementById('btn-start').disabled = !n;
+}
+
+document.getElementById('btn-start').addEventListener('click', () => {
+  agentName = document.getElementById('agent-name').value.trim();
+  document.getElementById('nav-agent-name').textContent = agentName;
+  document.getElementById('quiz-agent-name').textContent = agentName;
+  currentSlide = 1;
+  updateTrainingProgress();
+  showScreen('training');
+});
+
+// ═══════════════════════════════════════════════
+// TRAINING SLIDES
+// ═══════════════════════════════════════════════
+function updateTrainingProgress() {
+  const pct = ((currentSlide - 1) / (TOTAL_SLIDES - 1)) * 100;
+  document.getElementById('train-progress').style.width = pct + '%';
+  document.getElementById('train-prog-label').textContent = `Slide ${currentSlide} of ${TOTAL_SLIDES}`;
+}
+
+function nextSlide() {
+  if (currentSlide >= TOTAL_SLIDES) return;
+  document.querySelector(`.slide[data-slide="${currentSlide}"]`).classList.remove('active');
+  currentSlide++;
+  document.querySelector(`.slide[data-slide="${currentSlide}"]`).classList.add('active');
+  updateTrainingProgress();
+  window.scrollTo(0, 0);
+}
+
+function prevSlide() {
+  if (currentSlide <= 1) return;
+  document.querySelector(`.slide[data-slide="${currentSlide}"]`).classList.remove('active');
+  currentSlide--;
+  document.querySelector(`.slide[data-slide="${currentSlide}"]`).classList.add('active');
+  updateTrainingProgress();
+  window.scrollTo(0, 0);
+}
+
+function startQuiz() {
+  buildQuiz();
+  showScreen('quiz');
+}
+
+// ═══════════════════════════════════════════════
+// BUILD QUIZ
+// ═══════════════════════════════════════════════
+function buildQuiz() {
+  answers = {};
+  submitted = false;
+  const body = document.getElementById('quiz-body');
+  body.innerHTML = '';
+
+  let html = '';
+  let lastSection = null;
+
+  QUIZ.forEach((q, i) => {
+    if (q.section && q.section !== lastSection) {
+      html += `<div class="quiz-section-label">${q.section}</div>`;
+      lastSection = q.section;
+    }
+
+    html += `<div class="question-block" id="qblock-${i}">
+      <div class="q-num">Question ${i+1} of ${QUIZ.length}</div>
+      <div class="q-text">${q.q}</div>
+      <div class="options" id="opts-${i}">`;
+
+    q.opts.forEach((opt, j) => {
+      html += `<label class="option-label" id="opt-${i}-${j}" onclick="selectAnswer(${i},${j})">
+        <input type="radio" name="q${i}" value="${j}">
+        <div class="option-marker">${LETTERS[j]}</div>
+        <span>${opt}</span>
+      </label>`;
+    });
+
+    html += `</div></div>`;
+  });
+
+  html += `<div class="quiz-submit-section">
+    <p>Review all your answers before submitting. <strong>You cannot change answers after submission.</strong></p>
+    <button class="btn-submit" id="btn-submit" onclick="submitQuiz()" disabled>Submit Quiz →</button>
+    <div id="submit-msg" style="margin-top:12px; font-size:13px; color:var(--muted)"></div>
+  </div>`;
+
+  body.innerHTML = html;
+}
+
+function selectAnswer(qIdx, optIdx) {
+  if (submitted) return;
+  answers[qIdx] = optIdx;
+
+  // Update visuals
+  for (let j = 0; j < QUIZ[qIdx].opts.length; j++) {
+    const el = document.getElementById(`opt-${qIdx}-${j}`);
+    el.classList.toggle('selected', j === optIdx);
+  }
+
+  // Check if all answered
+  const answered = Object.keys(answers).length;
+  const btn = document.getElementById('btn-submit');
+  document.getElementById('submit-msg').textContent = `${answered} of ${QUIZ.length} answered`;
+  btn.disabled = answered < QUIZ.length;
+}
+
+// ═══════════════════════════════════════════════
+// SUBMIT QUIZ
+// ═══════════════════════════════════════════════
+function submitQuiz() {
+  if (submitted) return;
+  submitted = true;
+
+  // Lock all options
+  document.querySelectorAll('.option-label').forEach(el => el.classList.add('locked'));
+  document.getElementById('btn-submit').disabled = true;
+  document.getElementById('btn-submit').textContent = 'Submitted ✓';
+
+  // Calculate score
+  let correct = 0;
+  QUIZ.forEach((q, i) => {
+    if (answers[i] === q.answer) correct++;
+  });
+
+  const pct = Math.round((correct / QUIZ.length) * 100);
+  let grade, statusClass, badge;
+  if (correct >= 14) {
+    grade = "✅ Pass — Strong Understanding"; statusClass = "pass"; badge = "🏆";
+  } else if (correct >= 11) {
+    grade = "⚠️ Review Recommended"; statusClass = "review"; badge = "📋";
+  } else {
+    grade = "❌ Retrain Required"; statusClass = "fail"; badge = "📚";
+  }
+
+  // Save to storage
+  saveScore({ name: agentName, correct, total: QUIZ.length, pct, grade, statusClass, ts: new Date().toISOString() });
+
+  // Build results screen
+  showResults(correct, pct, grade, statusClass, badge);
+}
+
+function showResults(correct, pct, grade, statusClass, badge) {
+  document.getElementById('result-badge').textContent = badge;
+  document.getElementById('result-title').textContent = 'BMS Knowledge Check Complete';
+  document.getElementById('result-score').textContent = `${correct}/${QUIZ.length}`;
+  document.getElementById('result-score').className = `result-score ${statusClass}`;
+  document.getElementById('result-status').textContent = grade;
+  document.getElementById('result-status').className = `result-status ${statusClass}`;
+  document.getElementById('result-meta').textContent = `${agentName} · ${pct}%`;
+
+  // Breakdown
+  let bHtml = '<h3>Answer Review</h3>';
+  QUIZ.forEach((q, i) => {
+    const isCorrect = answers[i] === q.answer;
+    const userAns = LETTERS[answers[i]];
+    const correctAns = LETTERS[q.answer];
+    bHtml += `<div class="answer-row">
+      <span class="q-label">Q${i+1}: ${q.q.substring(0,50)}${q.q.length>50?'…':''}</span>
+      <div class="ans-indicator">
+        ${isCorrect ? `<span class="tick">✓</span>` : `<span class="cross">✗</span><span class="correct-ans">Correct: ${correctAns}</span>`}
+      </div>
+    </div>`;
+  });
+  document.getElementById('result-breakdown').innerHTML = bHtml;
+
+  showScreen('results');
+}
+
+// ═══════════════════════════════════════════════
+// SCORE STORAGE (localStorage)
+// ═══════════════════════════════════════════════
+const STORAGE_KEY = 'bms_academy_scores';
+
+function saveScore(entry) {
+  const scores = getScores();
+  scores.push(entry);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(scores));
+}
+
+function getScores() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); }
+  catch { return []; }
+}
+
+// ═══════════════════════════════════════════════
+// MANAGEMENT DASHBOARD
+// ═══════════════════════════════════════════════
+const MGMT_PIN = '2024';
+
+function checkPin() {
+  const val = document.getElementById('pin-input').value;
+  document.getElementById('pin-error').style.display = 'none';
+  if (val.length === 4) {
+    if (val === MGMT_PIN) {
+      document.getElementById('mgmt-pin-gate').style.display = 'none';
+      document.getElementById('mgmt-dashboard').style.display = 'block';
+      loadDashboard();
+    } else {
+      document.getElementById('pin-error').style.display = 'block';
+      document.getElementById('pin-input').value = '';
+    }
+  }
+}
+
+function loadDashboard() {
+  const scores = getScores();
+  const tbody = document.getElementById('scores-tbody');
+
+  // Stats
+  const total = scores.length;
+  const pass = scores.filter(s => s.correct >= 14).length;
+  const review = scores.filter(s => s.correct >= 11 && s.correct < 14).length;
+  const fail = scores.filter(s => s.correct < 11).length;
+  const avg = total ? Math.round(scores.reduce((a,b) => a + b.pct, 0) / total) : 0;
+
+  document.getElementById('stats-row').innerHTML = `
+    <div class="stat-card"><div class="s-num">${total}</div><div class="s-label">Total Submissions</div></div>
+    <div class="stat-card pass-stat"><div class="s-num">${pass}</div><div class="s-label">Passed (14–16)</div></div>
+    <div class="stat-card review-stat"><div class="s-num">${review}</div><div class="s-label">Review (11–13)</div></div>
+    <div class="stat-card fail-stat"><div class="s-num">${fail}</div><div class="s-label">Retrain (≤10)</div></div>
+    <div class="stat-card"><div class="s-num" style="color:var(--asp-blue)">${avg}%</div><div class="s-label">Average Score</div></div>
+  `;
+
+  if (scores.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><div class="icon">📭</div><p>No submissions yet. Scores will appear here once agents complete the quiz.</p></div></td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = scores.slice().reverse().map(s => {
+    const date = new Date(s.ts).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+    let badge;
+    if (s.correct >= 14) badge = '<span class="badge-pass">Pass</span>';
+    else if (s.correct >= 11) badge = '<span class="badge-review">Review</span>';
+    else badge = '<span class="badge-fail">Retrain</span>';
+    return `<tr>
+      <td>${s.name}</td>
+      <td>${s.correct}/${s.total}</td>
+      <td>${s.pct}%</td>
+      <td>${badge}</td>
+      <td>${date}</td>
+    </tr>`;
+  }).join('');
+}
+
+function exportCSV() {
+  const scores = getScores();
+  if (!scores.length) { alert('No scores to export yet.'); return; }
+  const header = 'Agent Name,Score,Total,Percentage,Result,Timestamp\n';
+  const rows = scores.map(s =>
+    `"${s.name}",${s.correct},${s.total},${s.pct}%,"${s.statusClass}","${s.ts}"`
+  ).join('\n');
+  const blob = new Blob([header + rows], { type: 'text/csv' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `BMS_Training_Scores_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+}
+</script>
+</body>
+</html>
